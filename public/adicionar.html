@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adicionar Usuário</title>
+</head>
+<body>
+  <h1>Cadastrar Novo Usuário</h1>
+
+  <!-- Formulário de cadastro de usuário -->
+  <form id="usuarioForm">
+    <input type="text" name="login" placeholder="Login" required /><br />
+    <input type="email" name="email" placeholder="Email" required /><br />
+    <input type="password" name="senha" placeholder="Senha" required /><br />
+    <input type="text" name="status" placeholder="Status (ativo ou inativo)" required /><br />
+    <input type="text" name="hash" placeholder="Hash (código de verificação)" /><br />
+    <input type="number" step="0.01" name="valorMensal" placeholder="Valor mensal" /><br />
+    <button type="submit">Cadastrar</button>
+  </form>
+
+  <!-- Parágrafo para exibir mensagens ao usuário -->
+  <p id="mensagem"></p>
+
+  <script>
+    document.getElementById("usuarioForm").addEventListener("submit", async function (e) {
+      e.preventDefault(); 
+
+      const form = e.target; 
+      // pega os dados
+      const dados = {
+        login: form.login.value,
+        email: form.email.value,
+        senha: form.senha.value,
+        status: form.status.value === "ativo", 
+        hash: form.hash.value || null, // Se não preenchido, envia null
+        valorMensal: form.valorMensal.value ? parseFloat(form.valorMensal.value) : null 
+      };
+
+      try {
+        // Faz uma requisição POST para o endpoint /usuarios enviando os dados em JSON
+        const response = await fetch('/usuarios', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
+
+        const texto = await response.text(); 
+        document.getElementById("mensagem").innerText = texto; 
+        if (response.ok) form.reset(); 
+      } catch (error) {
+        document.getElementById("mensagem").innerText = "Erro ao cadastrar usuário.";
+      }
+    });
+  </script>
+</body>
+</html>

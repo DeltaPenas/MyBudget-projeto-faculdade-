@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cadastrar Novo Usuário</title>
+</head>
+<body>
+  <h1>Cadastrar Novo Usuário</h1>
+  <form id="registerForm">
+    <input type="text" name="login" placeholder="Login" required><br>
+    <input type="email" name="email" placeholder="Email" required><br>
+    <input type="password" name="senha" placeholder="Senha" required><br>
+    <input type="password" name="confirmarSenha" placeholder="Confirmar Senha" required><br>
+    <input type="submit" value="Cadastrar">
+  </form>
+
+  <p id="msg"></p>
+
+  <script>
+    const form = document.getElementById('registerForm');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(form);
+  const body = Object.fromEntries(formData.entries());
+
+  const res = await fetch('/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+
+  const msg = await res.text();
+  document.getElementById('msg').textContent = msg;
+});
+    
+  </script>
+  
+</body>
+</html>

@@ -1,0 +1,12 @@
+segue os links de cada pagina e alguns comandos uteis
+
+http://localhost:3000/adicionar.html << Injeta forçadamente usuarios no bd.
+http://localhost:3000/confim.html << Confirma o cadastro ao colocar o hash enviado pelo email
+http://localhost:3000/login.html << Faz o login (avá) se o hash tiver sido confirmado
+http://localhost:3000/register.html  << registra o usuario e envia email
+http://localhost:3000/geradorpdf.html << gerador de pdf de teste
+
+no .env tem esses dois campos, usados para enviar o email
+
+EMAIL_USER="joaogabrieldl30@gmail.com"
+EMAIL_PASS="ccbg nvzx mgjc fsjl" 

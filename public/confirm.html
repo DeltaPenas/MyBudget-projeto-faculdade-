@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Confirmar Cadastro</title>
+</head>
+<body>
+  <h1>Confirmar Cadastro</h1>
+  <form id="confirmForm">
+    <label for="hash">Código de Confirmação:</label>
+    <input type="text" id="hash" name="hash" required>
+    <button type="submit">Confirmar</button>
+  </form>
+
+  <p id="mensagem"></p>
+
+  <script>
+     //Seleciona o formulário com o ID 'confirmForm'
+    const form = document.getElementById('confirmForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const hash = document.getElementById('hash').value;
+
+      const res = await fetch('/auth/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hash })
+      });
+
+      const msg = await res.text();
+      document.getElementById('mensagem').textContent = msg;
+    });
+  </script>
+</body>
+</html>
