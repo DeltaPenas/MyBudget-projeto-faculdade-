@@ -14,12 +14,30 @@ datasource db {
 }
 
 model Usuario {
-  id           Int      @id @default(autoincrement()) //chave primaria
+  id           Int       @id @default(autoincrement())
   login        String
-  email        String   @unique //email unico
+  email        String    @unique
   senha        String
-  status       Boolean  @default(true) //defaut true
-  hash         String? //opicional
-  valorMensal  Float? //opicional
-  criadoEm     DateTime @default(now())
+  status       Boolean   @default(true)
+  hash         String?
+  valorMensal  Float?
+  criadoEm     DateTime  @default(now())
+  gastos       Gasto[]   // relacionamento 1:N com Gasto
+}
+
+model Gasto {
+  id         Int       @id @default(autoincrement())
+  descricao  String
+  valor      Float
+  data       DateTime  @default(now())
+  usuarioId  Int
+  usuario    Usuario   @relation(fields: [usuarioId], references: [id])
+  categoria  Categoria? @relation(fields: [categoriaId], references: [id])
+  categoriaId Int?
+}
+
+model Categoria {
+  id     Int     @id @default(autoincrement())
+  titulo String
+  gastos Gasto[] // relacionamento 1:N com Gasto
 }

@@ -15,7 +15,13 @@ const authRoutes = require('./routes/auth');
 app.use('/auth', authRoutes);
 
 const usuariosRoutes = require('./routes/usuarios');
+const gastosRoutes = require('./routes/gastos')
+const categoriaRoutes = require('./routes/gastos')
+
 app.use('/usuarios', usuariosRoutes);
+app.use('/gastos', gastosRoutes);
+app.use('/categorias', categoriaRoutes);
+
 
 // Porta do servidor
 const PORT = process.env.PORT || 3000;

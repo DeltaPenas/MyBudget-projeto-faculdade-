@@ -57,6 +57,5 @@ exports.login = async (req, res) => {
   const senhaValida = await bcrypt.compare(senha, user.senha);
   if (!senhaValida) return res.status(401).send("Senha incorreta");
 
-  //res.send("Login realizado com sucesso");
-  window.location.href = 'form.html';
+  res.send("Login realizado com sucesso");
 };
