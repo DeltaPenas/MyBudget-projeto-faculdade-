@@ -5,6 +5,7 @@ http://localhost:3000/confim.html << Confirma o cadastro ao colocar o hash envia
 http://localhost:3000/login.html << Faz o login (avá) se o hash tiver sido confirmado
 http://localhost:3000/register.html  << registra o usuario e envia email
 http://localhost:3000/geradorpdf.html << gerador de pdf de teste
+http://localhost:3000/gastos.html << listar e gerar gastos
 
 no .env tem esses dois campos, usados para enviar o email
 

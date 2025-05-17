@@ -2,30 +2,23 @@ require('dotenv').config(); // Carrega o .env
 const express = require('express');
 const path = require('path');
 const app = express();
-
 // MIDDLEWARES 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-//  Arquivos estáticos
+// Arquivos estáticos 
 app.use(express.static(path.join(__dirname, '..', 'public')));
-
-//  Rotas
+// ROTAS
 const authRoutes = require('./routes/auth');
-app.use('/auth', authRoutes);
-
 const usuariosRoutes = require('./routes/usuarios');
-const gastosRoutes = require('./routes/gastos')
-const categoriaRoutes = require('./routes/gastos')
-
+const gastosRoutes = require('./routes/gastos');
+const categoriaRoutes = require('./routes/categorias'); 
+//
+app.use('/auth', authRoutes);
 app.use('/usuarios', usuariosRoutes);
 app.use('/gastos', gastosRoutes);
-app.use('/categorias', categoriaRoutes);
-
-
+app.use('/categorias', categoriaRoutes); 
 // Porta do servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor do teste rodando em: ${PORT}`);
+  console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
-

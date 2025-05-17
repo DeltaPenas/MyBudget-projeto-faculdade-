@@ -2,10 +2,12 @@ const crypto = require('crypto');
 const prisma = require('../lib/prisma');
 const bcrypt = require('bcrypt');
 const transporter = require('../lib/mailer');
+const jwt = require('jsonwebtoken'); 
 
 
 
 exports.cadastrar = async (req, res) => {
+
   const { login, email, senha, confirmarSenha } = req.body;
   if (senha !== confirmarSenha) return res.status(400).send("Senhas diferentes");
 
@@ -57,5 +59,20 @@ exports.login = async (req, res) => {
   const senhaValida = await bcrypt.compare(senha, user.senha);
   if (!senhaValida) return res.status(401).send("Senha incorreta");
 
-  res.send("Login realizado com sucesso");
+  const token = jwt.sign(
+    {id: user.id},
+    process.env.JWT_SECRET,
+    {expiresIn: '1h'}
+
+  );
+
+  res.json({
+    message: "Login realizado com sucesso",
+    token,
+    usuario: {
+      id: user.id,
+      email: user.email,
+      login: user.login
+  }
+});
 };

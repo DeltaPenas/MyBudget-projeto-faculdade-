@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Meus Gastos</title>
+  <style>
+    #alerta {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Adicionar Gasto</h1>
+
+  <!-- SALDO -->
+  <div>
+    <p><strong>Valor Mensal:</strong> R$ <span id="valor-mensal">0.00</span></p>
+    <p><strong>Total Gasto:</strong> R$ <span id="total-gasto">0.00</span></p>
+    <p><strong>Saldo Restante:</strong> R$ <span id="saldo-restante">0.00</span></p>
+    <p id="alerta"></p>
+  </div>
+
+  <!-- FORMULÁRIO DE GASTO -->
+  <form id="form-gasto">
+    <input type="text" id="descricao" placeholder="Descrição" required />
+    <input type="number" id="valor" placeholder="Valor" step="0.01" required />
+    <input type="date" id="data" required />
+    <button type="submit">Adicionar</button>
+  </form>
+
+  <h2>Lista de Gastos</h2>
+  <ul id="lista-gastos"></ul>
+
+  <script src="./scripts/gastos.js"></script>
+</body>
+</html>

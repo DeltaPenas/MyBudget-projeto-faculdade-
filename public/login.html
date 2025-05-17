@@ -6,14 +6,49 @@
 </head>
 <body>
   <h1>Login</h1>
-  <form action="/auth/login" method="POST">
+  <form id="form-login">
     <label for="email">Email:</label>
-    <input type="email" name="email" id="email" required>
+    <input type="email" id="email" required>
 
     <label for="senha">Senha:</label>
-    <input type="password" name="senha" id="senha" required>
+    <input type="password" id="senha" required>
 
     <button type="submit">Entrar</button>
   </form>
+
+  <script>
+    const form = document.getElementById('form-login');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+
+      try {
+        const res = await fetch('http://localhost:3000/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, senha })
+        });
+
+        if (!res.ok) {
+          const erro = await res.text();
+          alert('Erro: ' + erro);
+          return;
+        }
+
+        const data = await res.json();
+        localStorage.setItem('token', data.token);
+        alert('Login realizado com sucesso!');
+        window.location.href = '/gastos.html'; // Redireciona para a tela de gastos
+      } catch (err) {
+        alert('Erro ao logar: ' + err.message);
+      }
+    });
+  </script>
 </body>
 </html>
+
