@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../lib/prisma');
+const autenticarToken = require('../middlewares/auth');
 
 // CREATE - novo usuário
 router.post('/', async (req, res) => {
@@ -97,6 +98,27 @@ router.post('/confirmar', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send('Erro ao confirmar cadastro');
+  }
+});
+
+router.get('/me', autenticarToken, async (req, res) => {
+  try {
+    const usuario = await prisma.usuario.findUnique({
+      where: { id: req.usuarioId },
+      select: {
+        id: true,
+        login: true,
+        email: true,
+        valorMensal: true,
+        status: true
+      }
+    });
+
+    if (!usuario) return res.status(404).send("Usuário não encontrado");
+
+    res.json(usuario);
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 });
 
