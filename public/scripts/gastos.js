@@ -160,5 +160,40 @@ async function carregarGastos() {
   } catch (err) {
     alert("Erro ao carregar gastos: " + err.message);
   }
+  
+  document.getElementById('btn-relatorio').addEventListener('click', () => {
+  if (!token) {
+    alert("Você precisa estar logado!");
+    return;
+  }
+
+  fetch('http://localhost:3000/gastos/relatorio', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("Erro ao gerar relatório.");
+
+    return res.blob();
+  })
+  .then(blob => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'relatorio-gastos.pdf';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  })
+  .catch(err => {
+    alert("Erro ao baixar relatório: " + err.message);
+  });
+});
+
+
+
 }
 

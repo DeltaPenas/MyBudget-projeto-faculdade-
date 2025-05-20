@@ -1,3 +1,6 @@
+// Por conta do tempo eu pedi pro gpt fazer uma rota, as outras são copias das mesmas e pedi pra ele fazer o tratamento dos erros
+
+
 segue os links de cada pagina e alguns comandos uteis
 
 http://localhost:3000/adicionar.html << Injeta forçadamente usuarios no bd.
@@ -12,3 +15,6 @@ no .env tem esses dois campos, usados para enviar o email
 
 EMAIL_USER="joaogabrieldl30@gmail.com"
 EMAIL_PASS="ccbg nvzx mgjc fsjl" 
+
+se der erro em algo, observe que no package.jason tem todos os modulos usados no projeto e suas versões, e o EMAIL_PASS não é
+minha senha.

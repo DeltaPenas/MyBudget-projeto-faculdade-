@@ -7,9 +7,11 @@
 <body>
   <h2>Gerenciar Conta</h2>
   <ul>
-    <li><a href="recuperar-senha.html">Recuperar Senha</a></li>
-    <li><button onclick="excluirConta()">Excluir Conta</button></li>
-  </ul>
+  <li><button onclick="location.href='recuperar-senha.html'">Recuperar Senha</button></li>
+  <li><button onclick="excluirConta()">Excluir Conta</button></li>
+  <li><button onclick="location.href='login.html'">Sair da conta</button></li>
+</ul>
+
 
   <script>
     async function excluirConta() {
@@ -17,7 +19,7 @@
 
       if (!senha) return;
 
-      const token = localStorage.getItem('token'); // Certifique-se de que está armazenado
+      const token = localStorage.getItem('token'); 
 
       const resposta = await fetch("http://localhost:3000/usuarios/excluir-conta", {
         method: "DELETE",

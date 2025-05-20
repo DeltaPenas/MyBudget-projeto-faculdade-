@@ -4,7 +4,7 @@ const prisma = require('../lib/prisma');
 const autenticarToken = require('../middlewares/auth');
 const bcrypt = require('bcrypt');
 
-// CREATE - novo usuário
+// C
 router.post('/', async (req, res) => {
   const { login, email, senha, status, hash, valorMensal } = req.body;
   try {
@@ -24,7 +24,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// READ - listar todos os usuários
+// R
 router.get('/', async (req, res) => {
   try {
     const usuarios = await prisma.usuario.findMany();
@@ -62,7 +62,7 @@ router.put('/recuperar-senha', async (req, res) => {
   }
 });
 
-// UPDATE - atualizar usuário
+// U
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
   const { login, email, senha, status, hash, valorMensal } = req.body;
@@ -84,7 +84,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE - remover usuário
+// D
 router.delete('/excluir-conta', autenticarToken, async (req, res) => {
   const { senha } = req.body;
 
@@ -102,7 +102,7 @@ router.delete('/excluir-conta', autenticarToken, async (req, res) => {
     const senhaValida = await bcrypt.compare(senha, usuario.senha);
     if (!senhaValida) return res.status(401).send("Senha incorreta.");
 
-    // Exclusão em cascata (gastos + usuário)
+    // Exclui a porra toda, gastos do usuario e o usuario
     await prisma.usuario.delete({
       where: { id: req.usuarioId }
     });
@@ -114,7 +114,7 @@ router.delete('/excluir-conta', autenticarToken, async (req, res) => {
   }
 });
 
-// ENVIAR EMAIL
+// Envia o email usando o meu (Jão)
 router.post('/confirmar', async (req, res) => {
   const { email, codigo } = req.body;
 
@@ -146,7 +146,7 @@ router.post('/confirmar', async (req, res) => {
   }
 });
 
-// GET /me - usuário logado
+// GET /me - pega o usuario logado
 router.get('/me', autenticarToken, async (req, res) => {
   try {
     const usuario = await prisma.usuario.findUnique({
@@ -168,7 +168,7 @@ router.get('/me', autenticarToken, async (req, res) => {
   }
 });
 
-// PUT /usuario/saldo - atualiza saldo do usuário autenticado
+// PUT /usuario/saldo - atualiza saldo do usuario logado 
 router.put('/usuario/saldo', autenticarToken, async (req, res) => {
   const { valor } = req.body;
 
@@ -220,3 +220,5 @@ router.get('/usuario/saldo', autenticarToken, async (req, res) => {
 });
 
 module.exports = router;
+
+//Pedi pro gpt fazer o tratamento dos erros

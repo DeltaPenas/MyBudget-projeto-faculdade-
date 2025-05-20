@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const prisma = require('../lib/prisma');
 const autenticarToken = require('../middlewares/auth');
+const PDFDocument = require('pdfkit');
+
 
 // CREATE - cadastrar novo gasto
 router.post('/', autenticarToken, async (req, res) => {
@@ -83,4 +85,84 @@ router.get('/total-mensal', autenticarToken, async (req, res) => {
   }
 });
 
+//relatorio PDF
+
+
+router.get('/relatorio', autenticarToken, async (req, res) => {
+  try {
+    const usuario = await prisma.usuario.findUnique({
+      where: { id: req.usuarioId }
+    });
+
+    const gastos = await prisma.gasto.findMany({
+      where: { usuarioId: req.usuarioId },
+      include: { categoria: true },
+      orderBy: { data: 'desc' }
+    });
+
+    const totalGastos = gastos.reduce((acc, gasto) => acc + gasto.valor, 0);
+
+    const gastosPorCategoria = gastos.reduce((acc, gasto) => {
+      const categoria = gasto.categoria?.titulo || 'Sem categoria';
+      acc[categoria] = (acc[categoria] || 0) + gasto.valor;
+      return acc;
+    }, {});
+
+    const porcentagens = Object.entries(gastosPorCategoria).map(([categoria, valor]) => ({
+      categoria,
+      valor,
+      percentual: totalGastos ? ((valor / totalGastos) * 100).toFixed(2) : '0.00'
+    }));
+
+    const doc = new PDFDocument();
+    const nomeArquivo = `relatorio-${usuario.nome || usuario.login}.pdf`;
+
+    res.setHeader('Content-Disposition', `attachment; filename="${nomeArquivo}"`);
+    res.setHeader('Content-Type', 'application/pdf');
+
+    doc.pipe(res);
+
+    // Cabeçalho
+    doc.fontSize(20).text(`Relatório de Gastos`, { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(12).text(`Usuário: ${usuario.nome || usuario.login}`);
+
+    // Data no formato básico, ex: 05/20/2025
+    const dataGeracao = new Date().toLocaleDateString();
+    doc.text(`Data de Geração: ${dataGeracao}`);
+    doc.moveDown();
+
+    // Gastos detalhados
+    if (gastos.length === 0) {
+      doc.text('Nenhum gasto encontrado.');
+    } else {
+      gastos.forEach(gasto => {
+        doc.text(`- ${gasto.descricao}`);
+        doc.text(`  Valor: R$ ${gasto.valor.toFixed(2)}`);
+
+        // Data do gasto também no formato básico
+        const dataGasto = new Date(gasto.data).toLocaleDateString();
+        doc.text(`  Data: ${dataGasto}`);
+
+        doc.text(`  Categoria: ${gasto.categoria?.titulo || 'Sem categoria'}`);
+        doc.moveDown(0.5);
+      });
+    }
+
+    //resumo das categorias no fim do relatorio
+    doc.moveDown();
+    doc.fontSize(16).text('Resumo por Categoria:');
+    porcentagens.forEach(({ categoria, valor, percentual }) => {
+      doc.fontSize(12).text(`- ${categoria}: R$ ${valor.toFixed(2)} (${percentual}%)`);
+    });
+
+    doc.end();
+
+  } catch (err) {
+    console.error("Erro ao gerar relatório:", err);
+    res.status(500).send("Erro ao gerar relatório");
+  }
+});
+
 module.exports = router;
+
