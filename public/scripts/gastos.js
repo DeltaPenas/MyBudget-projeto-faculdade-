@@ -134,7 +134,7 @@ async function atualizarSaldos() {
     document.getElementById('saldo-restante').textContent = saldo;
 
     const alerta = document.getElementById('alerta');
-    alerta.textContent = saldo < 0 ? 'PAGA O SERASA FILHO DA PULTA' : '';
+    alerta.textContent = saldo < 0 ? 'SALDO NEGATIVO!!!' : '';
   } catch (err) {
     console.error('Erro ao carregar dados do usuário:', err);
   }

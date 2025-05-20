@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Recuperar Senha</title>
+</head>
+<body>
+  <h2>Recuperar Senha</h2>
+  <form id="formRecuperar">
+    <label>Email: <input type="email" id="email" required></label><br><br>
+    <label>Nova Senha: <input type="password" id="novaSenha" required></label><br><br>
+    <button type="submit">Atualizar Senha</button>
+  </form>
+
+  <script>
+    document.getElementById('formRecuperar').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const novaSenha = document.getElementById('novaSenha').value;
+
+      const resposta = await fetch('http://localhost:3000/usuarios/recuperar-senha', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, novaSenha })
+      });
+
+      if (resposta.ok) {
+        alert("Senha atualizada com sucesso!");
+        window.location.href = 'menu-conta.html';
+      } else {
+        const erro = await resposta.text();
+        alert("Erro: " + erro);
+      }
+    });
+  </script>
+</body>
+</html>
+

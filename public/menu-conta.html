@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Opções de Conta</title>
+</head>
+<body>
+  <h2>Gerenciar Conta</h2>
+  <ul>
+    <li><a href="recuperar-senha.html">Recuperar Senha</a></li>
+    <li><button onclick="excluirConta()">Excluir Conta</button></li>
+  </ul>
+
+  <script>
+    async function excluirConta() {
+      const senha = prompt("Digite sua senha:");
+
+      if (!senha) return;
+
+      const token = localStorage.getItem('token'); // Certifique-se de que está armazenado
+
+      const resposta = await fetch("http://localhost:3000/usuarios/excluir-conta", {
+        method: "DELETE",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ senha })
+      });
+
+      const texto = await resposta.text();
+      if (resposta.ok) {
+        alert("Conta excluída com sucesso!");
+        localStorage.removeItem('token');
+        window.location.href = "login.html";
+      } else {
+        alert("Erro: " + texto);
+      }
+    }
+  </script>
+</body>
+</html>
+
+
+

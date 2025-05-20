@@ -6,6 +6,7 @@ http://localhost:3000/login.html << Faz o login (avá) se o hash tiver sido conf
 http://localhost:3000/register.html  << registra o usuario e envia email
 http://localhost:3000/geradorpdf.html << gerador de pdf de teste
 http://localhost:3000/gastos.html << listar e gerar gastos
+http://localhost:3000/recuperar-senha.html  << recuperarsenhabraba
 
 no .env tem esses dois campos, usados para enviar o email
 

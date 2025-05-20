@@ -26,13 +26,13 @@ model Usuario {
 }
 
 model Gasto {
-  id         Int       @id @default(autoincrement())
-  descricao  String
-  valor      Float
-  data       DateTime  @default(now())
-  usuarioId  Int
-  usuario    Usuario   @relation(fields: [usuarioId], references: [id])
-  categoria  Categoria? @relation(fields: [categoriaId], references: [id])
+  id          Int        @id @default(autoincrement())
+  descricao   String
+  valor       Float
+  data        DateTime   @default(now())
+  usuarioId   Int
+  usuario     Usuario    @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  categoria   Categoria? @relation(fields: [categoriaId], references: [id])
   categoriaId Int?
 }
 

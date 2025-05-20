@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const prisma = require('../lib/prisma');
 const autenticarToken = require('../middlewares/auth');
+const bcrypt = require('bcrypt');
 
 // CREATE - novo usuário
 router.post('/', async (req, res) => {
@@ -33,6 +34,34 @@ router.get('/', async (req, res) => {
   }
 });
 
+// PUT /usuarios/recuperar-senha
+router.put('/recuperar-senha', async (req, res) => {
+  const { email, novaSenha } = req.body;
+
+  if (!email || !novaSenha) {
+    return res.status(400).send("Email e nova senha são obrigatórios.");
+  }
+
+  try {
+    const usuario = await prisma.usuario.findUnique({ where: { email } });
+    if (!usuario) {
+      return res.status(404).send("Usuário não encontrado.");
+    }
+
+    const senhaCriptografada = await bcrypt.hash(novaSenha, 10);
+
+    await prisma.usuario.update({
+      where: { email },
+      data: { senha: senhaCriptografada }
+    });
+
+    res.send("Senha atualizada com sucesso.");
+  } catch (error) {
+    console.error("Erro ao recuperar senha:", error);
+    res.status(500).send("Erro interno ao atualizar a senha.");
+  }
+});
+
 // UPDATE - atualizar usuário
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
@@ -56,15 +85,32 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE - remover usuário
-router.delete('/:id', async (req, res) => {
-  const { id } = req.params;
+router.delete('/excluir-conta', autenticarToken, async (req, res) => {
+  const { senha } = req.body;
+
+  if (!senha) {
+    return res.status(400).send("Senha obrigatória.");
+  }
+
   try {
-    await prisma.usuario.delete({
-      where: { id: parseInt(id) }
+    const usuario = await prisma.usuario.findUnique({
+      where: { id: req.usuarioId }
     });
-    res.send('Usuário removido com sucesso');
+
+    if (!usuario) return res.status(404).send("Usuário não encontrado.");
+
+    const senhaValida = await bcrypt.compare(senha, usuario.senha);
+    if (!senhaValida) return res.status(401).send("Senha incorreta.");
+
+    // Exclusão em cascata (gastos + usuário)
+    await prisma.usuario.delete({
+      where: { id: req.usuarioId }
+    });
+
+    res.send("Conta excluída com sucesso.");
   } catch (error) {
-    res.status(500).send(error.message);
+    console.error(error);
+    res.status(500).send("Erro ao excluir conta.");
   }
 });
 
@@ -122,7 +168,7 @@ router.get('/me', autenticarToken, async (req, res) => {
   }
 });
 
-//PUT /usuario/saldo - atualiza saldo do usuário autenticado
+// PUT /usuario/saldo - atualiza saldo do usuário autenticado
 router.put('/usuario/saldo', autenticarToken, async (req, res) => {
   const { valor } = req.body;
 
@@ -151,7 +197,7 @@ router.put('/usuario/saldo', autenticarToken, async (req, res) => {
   }
 });
 
-//GET /usuario/saldo - retorna saldo e total gasto
+// GET /usuario/saldo - retorna saldo e total gasto
 router.get('/usuario/saldo', autenticarToken, async (req, res) => {
   try {
     const usuario = await prisma.usuario.findUnique({
@@ -174,4 +220,3 @@ router.get('/usuario/saldo', autenticarToken, async (req, res) => {
 });
 
 module.exports = router;
-
