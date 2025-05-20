@@ -6,6 +6,9 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js"
   },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "dependencies": {
     "@prisma/client": "^6.7.0",
     "bcrypt": "^6.0.0",
@@ -25,3 +28,4 @@
     "prisma": "^6.7.0"
   }
 }
+

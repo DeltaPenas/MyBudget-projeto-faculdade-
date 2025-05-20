@@ -21,22 +21,24 @@
     <p id="alerta"></p>
   </div>
 
+  <!-- FORMULÁRIO DE DEPÓSITO -->
+  <div>
+    <h3>Adicionar Depósito</h3>
+    <form id="form-deposito">
+      <input type="number" id="valor-deposito" placeholder="Valor do depósito" step="0.01" required />
+      <button type="submit">Depositar</button>
+    </form>
+  </div>
+
   <!-- FORMULÁRIO DE GASTO -->
   <form id="form-gasto">
     <input type="text" id="descricao" placeholder="Descrição" required />
     <input type="number" id="valor" placeholder="Valor" step="0.01" required />
     <input type="date" id="data" required />
-    
-    <!-- CATEGORIA -->
+
+    <!-- CATEGORIAS -->
     <select id="categoria" required>
       <option value="">Selecione a categoria</option>
-      <option value="Alimentação">Alimentação</option>
-      <option value="Transporte">Transporte</option>
-      <option value="Moradia">Moradia</option>
-      <option value="Saúde">Saúde</option>
-      <option value="Educação">Educação</option>
-      <option value="Lazer">Lazer</option>
-      <option value="Outros">Outros</option>
     </select>
 
     <button type="submit">Adicionar</button>
@@ -48,4 +50,3 @@
   <script src="./scripts/gastos.js"></script>
 </body>
 </html>
-

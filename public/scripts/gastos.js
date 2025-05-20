@@ -2,9 +2,8 @@ const form = document.getElementById('form-gasto');
 const listaGastos = document.getElementById('lista-gastos');
 const token = localStorage.getItem('token');
 const categoriaSelect = document.getElementById('categoria');
-
-// Lista fixa de categorias
-const categoriasFixas = ['Alimentação', 'Transporte', 'Saúde', 'Lazer', 'Educação', 'Outros'];
+const formDeposito = document.getElementById('form-deposito');
+const valorDepositoInput = document.getElementById('valor-deposito');
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (!token) {
@@ -13,14 +12,106 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // Preenche as opções do select
-  categoriasFixas.forEach(cat => {
-    const option = document.createElement('option');
-    option.value = cat;
-    option.textContent = cat;
-    categoriaSelect.appendChild(option);
-  });
+  // Carrega categorias
+  try {
+    const resCategorias = await fetch('http://localhost:3000/categorias', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
+    const categorias = await resCategorias.json();
+    categoriaSelect.innerHTML = '<option value="">Selecione a categoria</option>';
+
+    categorias.forEach(cat => {
+      const option = document.createElement('option');
+      option.value = cat.id;
+      option.textContent = cat.titulo;
+      categoriaSelect.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Erro ao carregar categorias:", err);
+  }
+
+  await atualizarSaldos();
+  carregarGastos();
+});
+
+// FORMULÁRIO DE DEPÓSITO
+formDeposito.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const valor = parseFloat(valorDepositoInput.value);
+  if (isNaN(valor) || valor <= 0) {
+    alert("Insira um valor válido para o depósito.");
+    return;
+  }
+
+  if (!token) {
+    alert("Usuário não autenticado.");
+    return;
+  }
+
+  try {
+    const res = await fetch('http://localhost:3000/usuarios/usuario/saldo', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ valor })
+    });
+
+    if (!res.ok) {
+      const erroTexto = await res.text();
+      throw new Error(erroTexto);
+    }
+
+    const dados = await res.json();
+    alert("Depósito adicionado com sucesso! Novo saldo: R$ " + dados.valorMensal);
+    valorDepositoInput.value = "";
+    await atualizarSaldos(); // <- ESSENCIAL: atualiza os valores na interface
+
+  } catch (err) {
+    alert("Erro ao fazer depósito: " + err.message);
+  }
+});
+
+// FORMULÁRIO DE GASTO
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const descricao = document.getElementById('descricao').value;
+  const valor = document.getElementById('valor').value;
+  const data = document.getElementById('data').value;
+  const categoriaId = categoriaSelect.value;
+
+  if (!categoriaId) {
+    alert("Selecione uma categoria válida.");
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:3000/gastos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ descricao, valor, data, categoriaId })
+    });
+
+    if (!response.ok) throw new Error(await response.text());
+
+    alert("Gasto adicionado!");
+    form.reset();
+    await atualizarSaldos();
+    carregarGastos();
+  } catch (err) {
+    alert("Erro ao adicionar gasto: " + err.message);
+  }
+});
+
+// CARREGAR SALDO
+async function atualizarSaldos() {
   try {
     const [usuarioRes, gastoRes] = await Promise.all([
       fetch('http://localhost:3000/usuarios/me', {
@@ -43,42 +134,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('saldo-restante').textContent = saldo;
 
     const alerta = document.getElementById('alerta');
-    alerta.textContent = saldo < 0 ? '⚠ Você ultrapassou seu limite de gastos!' : '';
+    alerta.textContent = saldo < 0 ? 'PAGA O SERASA FILHO DA PULTA' : '';
   } catch (err) {
     console.error('Erro ao carregar dados do usuário:', err);
   }
+}
 
-  carregarGastos(); // Carrega ao abrir a página
-});
-
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const descricao = document.getElementById('descricao').value;
-  const valor = document.getElementById('valor').value;
-  const data = document.getElementById('data').value;
-  const categoria = categoriaSelect.value;
-
-  try {
-    const response = await fetch('http://localhost:3000/gastos', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ descricao, valor, data, categoria })
-    });
-
-    if (!response.ok) throw new Error(await response.text());
-
-    alert("Gasto adicionado!");
-    form.reset();
-    carregarGastos(); // Atualiza a lista
-  } catch (err) {
-    alert("Erro: " + err.message);
-  }
-});
-
+// CARREGAR GASTOS
 async function carregarGastos() {
   try {
     const response = await fetch('http://localhost:3000/gastos/usuario', {
@@ -89,12 +151,14 @@ async function carregarGastos() {
 
     const gastos = await response.json();
     listaGastos.innerHTML = '';
+
     gastos.forEach(g => {
       const item = document.createElement('li');
-      item.textContent = `${g.descricao} - R$ ${g.valor} - ${new Date(g.data).toLocaleDateString()} - ${g.categoria?.titulo || 'Sem categoria'}`;
+      item.textContent = `${g.descricao} - R$ ${parseFloat(g.valor).toFixed(2)} - ${new Date(g.data).toLocaleDateString()} - ${g.categoria?.titulo || 'Sem categoria'}`;
       listaGastos.appendChild(item);
     });
   } catch (err) {
-    alert("Erro ao carregar gastos");
+    alert("Erro ao carregar gastos: " + err.message);
   }
 }
+

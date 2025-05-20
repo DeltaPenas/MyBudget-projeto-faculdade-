@@ -20,7 +20,7 @@ model Usuario {
   senha        String
   status       Boolean   @default(true)
   hash         String?
-  valorMensal  Float?
+  valorMensal  Float    @default(0)
   criadoEm     DateTime  @default(now())
   gastos       Gasto[]   // relacionamento 1:N com Gasto
 }
@@ -38,6 +38,6 @@ model Gasto {
 
 model Categoria {
   id     Int     @id @default(autoincrement())
-  titulo String
+  titulo String  @unique
   gastos Gasto[] // relacionamento 1:N com Gasto
 }

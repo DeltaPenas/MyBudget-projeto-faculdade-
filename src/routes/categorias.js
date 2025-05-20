@@ -1,27 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../lib/prisma');
+const autenticarToken = require('../middlewares/auth');
 
-// CREATE - Nova categoria
-router.post('/', async (req, res) => {
-  const { titulo } = req.body;
+// GET /categorias - retorna todas as categorias
+router.get('/', autenticarToken, async (req, res) => {
   try {
-    const categoria = await prisma.categoria.create({
-      data: { titulo },
+    const categorias = await prisma.categoria.findMany({
+      orderBy: { titulo: 'asc' } //ordena por nome
     });
-    res.status(201).json(categoria);
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
-// READ - Listar todas as categorias
-router.get('/', async (req, res) => {
-  try {
-    const categorias = await prisma.categoria.findMany();
     res.json(categorias);
   } catch (error) {
-    res.status(500).send(error.message);
+    console.error("Erro ao buscar categorias:", error);
+    res.status(500).send("Erro ao buscar categorias");
   }
 });
 

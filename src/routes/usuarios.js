@@ -69,7 +69,6 @@ router.delete('/:id', async (req, res) => {
 });
 
 // ENVIAR EMAIL
-
 router.post('/confirmar', async (req, res) => {
   const { email, codigo } = req.body;
 
@@ -90,7 +89,7 @@ router.post('/confirmar', async (req, res) => {
       where: { email },
       data: {
         status: true,
-        hash: null, // limpa o código
+        hash: null,
       },
     });
 
@@ -101,6 +100,7 @@ router.post('/confirmar', async (req, res) => {
   }
 });
 
+// GET /me - usuário logado
 router.get('/me', autenticarToken, async (req, res) => {
   try {
     const usuario = await prisma.usuario.findUnique({
@@ -119,6 +119,57 @@ router.get('/me', autenticarToken, async (req, res) => {
     res.json(usuario);
   } catch (error) {
     res.status(500).send(error.message);
+  }
+});
+
+//PUT /usuario/saldo - atualiza saldo do usuário autenticado
+router.put('/usuario/saldo', autenticarToken, async (req, res) => {
+  const { valor } = req.body;
+
+  if (!valor || isNaN(valor) || valor <= 0) {
+    return res.status(400).json({ erro: 'Valor inválido para depósito' });
+  }
+
+  try {
+    const usuarioAtualizado = await prisma.usuario.update({
+      where: { id: req.usuarioId },
+      data: {
+        valorMensal: {
+          increment: parseFloat(valor)
+        }
+      }
+    });
+
+    res.json({
+      sucesso: true,
+      mensagem: 'Depósito realizado com sucesso',
+      valorMensal: usuarioAtualizado.valorMensal
+    });
+  } catch (error) {
+    console.error('Erro ao realizar depósito:', error);
+    res.status(500).json({ erro: 'Erro ao realizar depósito' });
+  }
+});
+
+//GET /usuario/saldo - retorna saldo e total gasto
+router.get('/usuario/saldo', autenticarToken, async (req, res) => {
+  try {
+    const usuario = await prisma.usuario.findUnique({
+      where: { id: req.usuarioId },
+      include: { gastos: true },
+    });
+
+    const totalGasto = usuario.gastos.reduce((soma, gasto) => soma + gasto.valor, 0);
+    const saldoRestante = (usuario.valorMensal || 0) - totalGasto;
+
+    res.json({
+      valorMensal: usuario.valorMensal || 0,
+      totalGasto,
+      saldoRestante,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ erro: 'Erro ao obter saldo do usuário' });
   }
 });
 
