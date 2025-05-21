@@ -105,6 +105,7 @@ form.addEventListener('submit', async (e) => {
     form.reset();
     await atualizarSaldos();
     carregarGastos();
+    location.reload();
   } catch (err) {
     alert("Erro ao adicionar gasto: " + err.message);
   }

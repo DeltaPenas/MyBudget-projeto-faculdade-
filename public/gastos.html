@@ -9,6 +9,18 @@
       font-weight: bold;
     }
   </style>
+  
+  <!-- CSS DO GRAFICO, FICOU MT GRANDE ENTÃO COLOQUEI -->
+  <style>
+  #graficoGastos {
+    max-width: 400px;
+    max-height: 400px;
+    width: 100%;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+  }
+</style>
 </head>
 <body>
   <h1>Adicionar Gasto</h1>
@@ -47,14 +59,74 @@
   <h2>Lista de Gastos</h2>
   <ul id="lista-gastos"></ul>
 
-  <script src="./scripts/gastos.js"></script>
-
   <button id="btn-relatorio">Baixar Relatório em PDF</button>
 
+  <!-- GRÁFICO -->
+  <h2>Gráfico de Gastos por Categoria</h2>
+  <canvas id="graficoGastos" width="400" height="400"></canvas>
 
+  <!-- VOLTAR -->
   <h3><button onclick="window.location.href='http://localhost:3000/menu-conta.html'">opções</button></h3>
 
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="./scripts/gastos.js"></script>
 
+
+  <!-- SCRIPT DO GRÁFICO -->
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('token'); // Ajuste conforme seu sistema
+
+      if (!token) {
+        alert('Token de autenticação não encontrado.');
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:3000/gastos/por-categoria', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const dados = await response.json();
+
+        const labels = dados.map(item => item.categoria);
+        const valores = dados.map(item => item.total);
+
+        const ctx = document.getElementById('graficoGastos').getContext('2d');
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Gastos por Categoria',
+              data: valores,
+              backgroundColor: [
+                '#f44336', '#2196f3', '#4caf50', '#ff9800', '#9c27b0', '#00bcd4'
+              ]
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: 'bottom' },
+              title: {
+                display: true,
+                text: 'Distribuição de Gastos por Categoria'
+              }
+            }
+          }
+        });
+
+      } catch (err) {
+        console.error('Erro ao carregar gráfico:', err);
+        alert('Não foi possível carregar o gráfico de gastos.');
+      }
+    });
+  </script>
 
 </body>
 </html>
+

@@ -22,6 +22,7 @@ router.post('/', autenticarToken, async (req, res) => {
         usuarioId: req.usuarioId,
         categoriaId: categoriaId ? parseInt(categoriaId) : null
       }
+      
     });
 
     res.status(201).json(novoGasto);
@@ -161,6 +162,32 @@ router.get('/relatorio', autenticarToken, async (req, res) => {
   } catch (err) {
     console.error("Erro ao gerar relatório:", err);
     res.status(500).send("Erro ao gerar relatório");
+  }
+});
+
+// GET /gastos/por-categoria - retorna total de gastos agrupados por categoria
+router.get('/por-categoria', autenticarToken, async (req, res) => {
+  try {
+    const resultado = await prisma.gasto.groupBy({
+      by: ['categoriaId'],
+      where: { usuarioId: req.usuarioId },
+      _sum: { valor: true },
+    });
+
+    const categorias = await prisma.categoria.findMany();
+
+    const dados = resultado.map(r => {
+      const categoria = categorias.find(c => c.id === r.categoriaId);
+      return {
+        categoria: categoria?.titulo || 'Sem categoria',
+        total: r._sum.valor
+      };
+    });
+
+    res.json(dados);
+  } catch (error) {
+    console.error('Erro ao agrupar gastos por categoria:', error);
+    res.status(500).send('Erro ao gerar dados do gráfico');
   }
 });
 
